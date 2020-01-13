@@ -1,25 +1,25 @@
-use actix_web::{web, App, HttpRequest, HttpServer, HttpResponse, Responder};
+use actix_web::{web, App, HttpRequest, HttpServer, Responder};
 use std::sync::Mutex;
 use serde::Serialize;
 
 #[derive(Serialize, Clone)]
-struct TheList {
+struct Groceries {
     items: Vec<String>,
 }
 
-async fn add(req: HttpRequest, data: web::Data<Mutex<TheList>>) -> impl Responder {
+async fn add(req: HttpRequest, data: web::Data<Mutex<Groceries>>) -> impl Responder {
     let mut data = data.lock().unwrap();
     let item = req.match_info().get("item").unwrap();
     data.items.push(item.to_string());
     format!("Item {} added", &item)
 }
 
-async fn get(data: web::Data<Mutex<TheList>>) -> impl Responder {
+async fn get(data: web::Data<Mutex<Groceries>>) -> impl Responder {
     let data = data.lock().unwrap();
     web::Json(data.items.clone())
 }
 
-async fn remove(req: HttpRequest, data: web::Data<Mutex<TheList>>) -> impl Responder {
+async fn remove(req: HttpRequest, data: web::Data<Mutex<Groceries>>) -> impl Responder {
     let mut data = data.lock().unwrap();
     let item = req.match_info().get("item").unwrap();
     data.items.retain(|x| x != item);
@@ -29,7 +29,7 @@ async fn remove(req: HttpRequest, data: web::Data<Mutex<TheList>>) -> impl Respo
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
 
-    let groceries = web::Data::new(Mutex::new(TheList{items: Vec::new()}));
+    let groceries = web::Data::new(Mutex::new(Groceries{items: Vec::new()}));
     
     HttpServer::new(move || {
         App::new()
