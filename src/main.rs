@@ -8,20 +8,20 @@ struct Groceries {
 }
 
 async fn add(req: HttpRequest, data: web::Data<Mutex<Groceries>>) -> impl Responder {
-    let mut data = data.lock().unwrap();
-    let item = req.match_info().get("item").unwrap();
+    let mut data = data.lock();
+    let item = req.match_info().get("item");
     data.items.push(item.to_string());
     web::Json(format!("Item {} added", &item)).with_status(StatusCode::OK)
 }
 
 async fn get(data: web::Data<Mutex<Groceries>>) -> impl Responder {
-    let data = data.lock().unwrap();
+    let data = data.lock();
     web::Json(data.items.clone()).with_status(StatusCode::OK)
 }
 
 async fn remove(req: HttpRequest, data: web::Data<Mutex<Groceries>>) -> impl Responder {
-    let mut data = data.lock().unwrap();
-    let item = req.match_info().get("item").unwrap();
+    let mut data = data.lock();
+    let item = req.match_info().get("item");
     data.items.retain(|x| x != item);
     web::Json(format!("Item {} removed", &item)).with_status(StatusCode::OK) 
 }
