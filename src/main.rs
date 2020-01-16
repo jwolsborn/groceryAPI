@@ -13,8 +13,6 @@ struct JsonRes {
 	message: String,
 }
 
-
-
 async fn add(req: HttpRequest, data: web::Data<Mutex<Groceries>>) -> impl Responder {
     let mut data = match data.lock(){
 		Err(_) => return web::Json(format!("Data is locked")).with_status(StatusCode::BAD_REQUEST),
@@ -32,7 +30,8 @@ async fn get(data: web::Data<Mutex<Groceries>>) -> impl Responder {
     let data = match data.lock(){
    		Err(_) => return web::Json(JsonRes{data: Vec::new(), message:"Data is locked".to_string()}).with_status(StatusCode::BAD_REQUEST),
    		Ok(data) => data
-   };                                                                                        
+   };
+
 	web::Json(JsonRes{data:data.items.clone(), message: "Success".to_string()}).with_status(StatusCode::OK)
 }
 
